@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🇯🇵🇫🇷 2026 日本 & 中國假期行事曆</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;600;700;900&family=Poppins:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: #66a6ff;
+            color: #2d3436;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Realistic Sky Background */
+        .bg-animated {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            z-index: 0;
+        }
+
+        /* Realistic Clouds */
+        .clouds-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .cloud {
+            position: absolute;
+            background: radial-gradient(closest-side, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0));
+            filter: url(#cloud-real);
+            opacity: 0.8;
+            animation: drift linear infinite;
+        }
+
+        @keyframes drift {
+            from {
+                transform: translateX(-400px);
+            }
+
+            to {
+                transform: translateX(120vw);
+            }
+        }
+
+        /* Flying Objects */
+        .flying-obj {
+            position: absolute;
+            z-index: 1;
+            pointer-events: none;
+            color: rgba(255, 255, 255, 0.9);
+            will-change: transform;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        @keyframes fly-across {
+            0% {
+                transform: translateX(-10vw) translateY(0) rotate(5deg);
+                opacity: 0;
+            }
+
+            5% {
+                opacity: 1;
+            }
+
+            95% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateX(110vw) translateY(-10vh) rotate(5deg);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* Nav */
+        .nav-bar {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 12px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-btn.active {
+            background: #fff;
+            color: #0984e3;
+        }
+
+        .nav-btn.inactive {
+            background: rgba(255, 255, 255, 0.25);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Layout */
+        .countries-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        @media (max-width: 900px) {
+            .countries-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .country-section {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .country-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #eee;
+        }
+
+        .flag-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .country-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #2d3436;
+        }
+
+        /* Holiday List */
+        .holiday-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .holiday-item {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-left: 5px solid transparent;
+        }
+
+        .holiday-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .holiday-item.japan {
+            border-left-color: #ef3340;
+        }
+
+        /* Japan Red */
+        .holiday-item.china {
+            border-left-color: #ffde00;
+            background: linear-gradient(to right, #fff 98%, #fff5e6 100%);
+            border-left-color: #de2910;
+        }
+
+        /* China Red */
+
+        .date-badge {
+            background: #f1f2f6;
+            color: #2d3436;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            min-width: 130px;
+            text-align: center;
+            margin-right: 20px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+        }
+
+        .holiday-info h3 {
+            font-size: 1.1rem;
+            color: #2d3436;
+            margin-bottom: 4px;
+        }
+
+        .holiday-info p {
+            font-size: 0.9rem;
+            color: #636e72;
+        }
+
+        .long-leave {
+            background: #ffeaa7;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: #d35400;
+            font-weight: 700;
+            margin-left: 10px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 10px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .subtitle {
+                font-size: 0.9rem;
+            }
+
+            header {
+                margin-bottom: 25px;
+            }
+
+            .nav-bar {
+                gap: 8px;
+                margin-bottom: 25px;
+            }
+
+            .nav-btn {
+                padding: 8px 14px;
+                font-size: 0.8rem;
+            }
+
+            .countries-grid {
+                gap: 25px;
+            }
+
+            .country-section {
+                padding: 20px;
+            }
+
+            .country-header {
+                margin-bottom: 20px;
+                padding-bottom: 12px;
+            }
+
+            .flag-icon {
+                width: 36px;
+                height: 36px;
+            }
+
+            .country-title {
+                font-size: 1.5rem;
+            }
+
+            .holiday-item {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 12px 15px;
+            }
+
+            .date-badge {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 8px;
+                min-width: auto;
+                font-size: 0.85rem;
+                padding: 6px 10px;
+            }
+
+            .holiday-info h3 {
+                font-size: 1rem;
+            }
+
+            .holiday-info p {
+                font-size: 0.85rem;
+            }
+
+            .long-leave {
+                font-size: 0.7rem;
+                margin-left: 6px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .subtitle {
+                font-size: 0.8rem;
+            }
+
+            .nav-btn {
+                padding: 6px 10px;
+                font-size: 0.75rem;
+            }
+
+            .country-section {
+                padding: 15px;
+            }
+
+            .country-title {
+                font-size: 1.3rem;
+            }
+
+            .holiday-item {
+                padding: 10px 12px;
+            }
+
+            .date-badge {
+                font-size: 0.75rem;
+                padding: 5px 8px;
+            }
+
+            .holiday-info h3 {
+                font-size: 0.9rem;
+            }
+
+            .holiday-info p {
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Cloud Filter -->
+    <svg width="0" height="0" style="position:absolute;">
+        <filter id="cloud-real">
+            <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="5" seed="0" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="150" />
+        </filter>
+    </svg>
+
+    <div class="bg-animated"></div>
+    <div class="clouds-container" id="clouds"></div>
+
+    <div class="container">
+        <header>
+            <h1>🇯🇵 日本 & 🇨🇳 中國 2026 假期</h1>
+            <p class="subtitle">規劃亞洲旅遊必備！避開人潮或參與當地節慶</p>
+        </header>
+
+        <nav class="nav-bar">
+            <a href="index.html" class="nav-btn inactive">🌍 全球最佳時間</a>
+            <a href="taiwan_holidays.html" class="nav-btn inactive">🇹🇼 台灣請假攻略</a>
+            <a href="school_calendar.html" class="nav-btn inactive">📅 學校考試行事曆</a>
+            <a href="#" class="nav-btn active">🇯🇵🇨🇳 亞洲假期</a>
+        </nav>
+
+        <div class="countries-grid">
+            <!-- Japan Section -->
+            <div class="country-section">
+                <div class="country-header">
+                    <img src="https://flagcdn.com/w80/jp.png" alt="Japan" class="flag-icon">
+                    <div class="country-title">2026 日本假期</div>
+                </div>
+                <div class="holiday-list" id="japanList">
+                    <!-- JS Injected -->
+                </div>
+            </div>
+
+            <!-- China Section -->
+            <div class="country-section">
+                <div class="country-header">
+                    <img src="https://flagcdn.com/w80/cn.png" alt="China" class="flag-icon">
+                    <div class="country-title">2026 中國假期</div>
+                </div>
+                <div class="holiday-list" id="chinaList">
+                    <!-- JS Injected -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Data ---
+        const japanHolidays = [
+            { date: '1/1 (四)', name: '元日 (New Year)', desc: '新年假期，許多店家會休息' },
+            { date: '1/12 (一)', name: '成人の日', desc: '三連休', tag: '三連休' },
+            { date: '2/11 (三)', name: '建國紀念之日', desc: '週三放假一天' },
+            { date: '2/23 (一)', name: '天皇誕生日', desc: '三連休', tag: '三連休' },
+            { date: '3/20 (五)', name: '春分の日', desc: '三連休', tag: '三連休' },
+            { date: '4/29 (三)', name: '昭和の日', desc: '黃金週序幕' },
+            { date: '5/3 - 5/6', name: '黃金週 (Golden Week)', desc: '憲法紀念日、綠之日、兒童節。5/6(三)為補假。', tag: '超級連休' },
+            { date: '7/20 (一)', name: '海の日', desc: '三連休', tag: '三連休' },
+            { date: '8/11 (二)', name: '山の日', desc: '配合盂蘭盆節(8/13-16)可能形成連休' },
+            { date: '9/21 (一)', name: '敬老の日', desc: '三連休', tag: '三連休' },
+            { date: '9/23 (三)', name: '秋分の日', desc: '週三放假' },
+            { date: '10/12 (一)', name: 'スポーツの日', desc: '體育之日，三連休', tag: '三連休' },
+            { date: '11/3 (二)', name: '文化の日', desc: '週二放假' },
+            { date: '11/23 (一)', name: '勤勞感謝の日', desc: '三連休', tag: '三連休' }
+        ];
+
+        const chinaHolidays = [
+            { date: '1/1 - 1/3', name: '元旦 (New Year)', desc: '預計放假3天', tag: '小長假' },
+            { date: '2/16 - 2/22', name: '春節 (Chinese New Year)', desc: '農曆新年黃金週，人潮移動高峰', tag: '7天長假' },
+            { date: '4/4 - 4/6', name: '清明節', desc: '預計放假3天', tag: '小長假' },
+            { date: '5/1 - 5/5', name: '勞動節', desc: '預計放假5天', tag: '5天長假' },
+            { date: '6/19 - 6/21', name: '端午節', desc: '預計放假3天', tag: '小長假' },
+            { date: '9/25 - 9/27', name: '中秋節', desc: '預計放假3天', tag: '小長假' },
+            { date: '10/1 - 10/7', name: '國慶節 (National Day)', desc: '十一黃金週，旅遊極旺季', tag: '7天長假' }
+        ];
+
+        // --- Render ---
+        function renderHolidays(data, containerId, countryClass) {
+            const container = document.getElementById(containerId);
+            let html = '';
+            data.forEach(h => {
+                const tagHtml = h.tag ? `<span class="long-leave">${h.tag}</span>` : '';
+                html += `
+                    <div class="holiday-item ${countryClass}">
+                        <div class="date-badge">${h.date}</div>
+                        <div class="holiday-info">
+                            <h3>${h.name} ${tagHtml}</h3>
+                            <p>${h.desc}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        renderHolidays(japanHolidays, 'japanList', 'japan');
+        renderHolidays(chinaHolidays, 'chinaList', 'china');
+
+        // --- Animations ---
+        // Clouds
+        const cloudsContainer = document.getElementById('clouds');
+        for (let i = 0; i < 12; i++) {
+            const cloud = document.createElement('div');
+            cloud.className = 'cloud';
+            const width = Math.random() * 400 + 300;
+            const height = width * 0.55;
+            cloud.style.width = width + 'px';
+            cloud.style.height = height + 'px';
+            cloud.style.top = Math.random() * 100 + '%';
+            cloud.style.animationDuration = Math.random() * 40 + 20 + 's';
+            cloud.style.animationDelay = (Math.random() * -60) + 's';
+            cloudsContainer.appendChild(cloud);
+        }
+
+        // Flying Objects
+        function spawnFlyingObject() {
+            const container = document.getElementById('clouds');
+            if (!container) return;
+            const el = document.createElement('div');
+            el.className = 'flying-obj';
+            const isPlane = Math.random() > 0.7;
+            if (isPlane) {
+                el.innerHTML = `<svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" style="transform: rotate(90deg);"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>`;
+                const duration = 20 + Math.random() * 15;
+                el.style.animation = `fly-across ${duration}s linear forwards`;
+                el.style.top = (5 + Math.random() * 40) + '%';
+            } else {
+                el.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.8;"><path d="M2 14c4-4 8-4 10 0 2-4 6-4 10 0"/></svg>`;
+                const duration = 35 + Math.random() * 20;
+                el.style.animation = `fly-across ${duration}s linear forwards`;
+                el.style.top = (20 + Math.random() * 50) + '%';
+            }
+            container.appendChild(el);
+            setTimeout(() => el.remove(), 60000);
+        }
+        setInterval(() => { if (Math.random() > 0.3) spawnFlyingObject(); }, 8500);
+        setTimeout(spawnFlyingObject, 3000);
+
+    </script>
+</body>
+
+</html>
